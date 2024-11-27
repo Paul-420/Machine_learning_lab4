@@ -76,12 +76,12 @@ jobs:
         git config --global user.name "Paul-420"
 
     - name: Merge dev into master (if applicable)
-  if: github.ref == 'refs/heads/dev'
-  run: |
-    git fetch origin master
-    git checkout master
-    git merge dev --allow-unrelated-histories || true
-    git checkout --theirs .
-    git add .
-    git commit -m "Merge dev into master - resolved conflicts by prioritizing dev"
-    git push origin master
+      if: github.ref == 'refs/heads/dev'
+      run: |
+        git fetch origin master
+        git checkout master
+        git merge dev --allow-unrelated-histories || true
+        git checkout --theirs .
+        git add .
+        git commit -m "Merge dev into master - resolved conflicts by prioritizing dev"
+        git push origin master
