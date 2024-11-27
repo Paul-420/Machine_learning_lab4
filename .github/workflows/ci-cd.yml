@@ -70,6 +70,11 @@ jobs:
       run: |
         docker-compose push
 
+    - name: Configure Git identity
+      run: |
+        git config --global user.email "pauljouvanceau@gmail.com"
+        git config --global user.name "Paul-420"
+
     - name: Merge dev to master (if applicable)
       if: github.ref == 'refs/heads/dev'
       run: |
