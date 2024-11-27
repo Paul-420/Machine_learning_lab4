@@ -15,21 +15,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Étape 1: Checkout du code
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Étape 2: Installer Docker et Docker Compose
     - name: Set up Docker
       run: |
+        # Supprimer les anciennes versions de Docker et containerd s'il y en a
+        sudo apt-get remove -y docker docker-engine docker.io containerd runc
+
+        # Mettre à jour la liste des paquets
         sudo apt-get update
-        sudo apt-get install -y docker.io
-        sudo systemctl start docker
-        sudo systemctl enable docker
-        sudo apt-get install -y curl
+
+        # Installer les dépendances nécessaires pour Docker
+        sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+        # Ajouter la clé GPG officielle de Docker
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+
+        # Ajouter le dépôt stable de Docker
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+        # Installer Docker
+        sudo apt-get update
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+        # Vérifier que Docker est installé
+        docker --version
+
+        # Installer Docker Compose
         curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
-        docker --version
+
+        # Vérifier que Docker Compose est installé
         docker-compose --version
 
+    # Étape 3: Installer Node.js et les dépendances pour le frontend et le backend
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
@@ -42,6 +64,7 @@ jobs:
         cd ../backend
         npm install
 
+    # Étape 4: Exécuter les tests unitaires pour le frontend et le backend
     - name: Run tests for frontend
       run: |
         cd frontend
@@ -52,10 +75,21 @@ jobs:
         cd backend
         npm test
 
+    # Étape 5: Construire les images Docker et déployer si tout est bon
     - name: Build Docker images
       run: |
         docker-compose up --build -d
 
+    # Étape 6: Pousser les images Docker vers un registre public
     - name: Push Docker images
       run: |
         docker-compose push
+
+    # Étape 7: Fusionner la branche dev vers la branche main automatiquement après la réussite des tests
+    - name: Merge dev to main (if applicable)
+      if: github.ref == 'refs/heads/dev'
+      run: |
+        git fetch origin main
+        git checkout main
+        git merge dev
+        git push origin main
