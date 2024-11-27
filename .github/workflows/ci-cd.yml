@@ -20,33 +20,24 @@ jobs:
 
     - name: Set up Docker
       run: |
-        # Supprimer les anciennes versions de Docker et containerd s'il y en a
         sudo apt-get remove -y docker docker-engine docker.io containerd runc
 
-        # Mettre à jour la liste des paquets
         sudo apt-get update
 
-        # Installer les dépendances nécessaires pour Docker
         sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
-        # Ajouter la clé GPG officielle de Docker
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
 
-        # Ajouter le dépôt stable de Docker
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-        # Installer Docker
         sudo apt-get update
         sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
-        # Vérifier que Docker est installé
         docker --version
 
-        # Installer Docker Compose
         curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
-        # Vérifier que Docker Compose est installé
         docker-compose --version
 
     - name: Set up Node.js
@@ -84,5 +75,5 @@ jobs:
       run: |
         git fetch origin master
         git checkout master
-        git merge dev
+        git merge dev --allow-unrelated-histories
         git push origin master
