@@ -21,10 +21,3 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-
-//Comment
-//Comment2
-//Comment3
-//Comment4
-//Comment5
-//Comment6
